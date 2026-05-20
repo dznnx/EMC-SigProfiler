@@ -1,0 +1,29 @@
+[project]
+name = "emcSP"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy",
+    "typer",
+    "SigProfilerMatrixGenerator",
+    "SigProfilerAssignment",
+    "SigProfilerPlotting",
+]
+
+[project.optional-dependencies]
+dev = [ "pytest" ]
+
+[project.scripts]
+emcsp = "emcSP.cli:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["src"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
