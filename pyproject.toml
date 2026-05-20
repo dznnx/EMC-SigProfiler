@@ -10,7 +10,7 @@ dependencies = [
     "SigProfilerPlotting",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [ "pytest" ]
 
 [project.scripts]

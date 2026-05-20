@@ -195,7 +195,7 @@ dependencies = [
     { name = "typer" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "pytest" },
 ]
@@ -203,13 +203,14 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "numpy" },
-    { name = "pytest", marker = "extra == 'dev'" },
     { name = "sigprofilerassignment" },
     { name = "sigprofilermatrixgenerator" },
     { name = "sigprofilerplotting" },
     { name = "typer" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest" }]
 
 [[package]]
 name = "fonttools"

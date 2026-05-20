@@ -13,7 +13,6 @@
 
   languages.python = {
     enable = true;
-    package = pkgs.python3.withPackages (ps: [ ps.pytest ]);
     lsp.package = pkgs.ty;
     venv.enable = true;
     uv = {
