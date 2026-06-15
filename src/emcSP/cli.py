@@ -4,7 +4,7 @@ from pathlib import Path
 
 import typer
 
-from emcSP.core import analyze_from_tsv, install_reference
+from emcSP.core import SampleConfig, analyze_from_tsv, install_reference
 
 app = typer.Typer(
     name="emcSP",
@@ -70,14 +70,25 @@ def analyze(
     make_plots: bool = typer.Option(
         False, "--make-plots/--no-make-plots", help="Generate signature plots"
     ),
+    output_format: str = typer.Option(
+        "tsv", "--format", "-f", help="Output format: 'tsv', 'html', or 'both'"
+    ),
 ):
     """Analyze a single sample from TSV file to signature assignment."""
-    analyze_from_tsv(
-        input_tsv=input_tsv,
+    if output_format not in ("tsv", "html", "both"):
+        typer.echo(
+            f"Error: Invalid output format '{output_format}'. Choose from 'tsv', 'html', or 'both'.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    effective_plot = plot or (output_format in ("html", "both"))
+
+    cfg = SampleConfig(
         sample_name=sample_name,
         output_dir=output_dir,
         reference=reference,
-        plot=plot,
+        plot=effective_plot,
         context_type=context_type,
         cosmic_version=cosmic_version,
         exome=exome,
@@ -86,8 +97,9 @@ def analyze(
         nnls_remove_penalty=nnls_remove_penalty,
         initial_remove_penalty=initial_remove_penalty,
         make_plots=make_plots,
-        logger=typer.echo,
+        output_format=output_format,
     )
+    analyze_from_tsv(input_tsv=input_tsv, cfg=cfg, logger=typer.echo)
 
 
 if __name__ == "__main__":

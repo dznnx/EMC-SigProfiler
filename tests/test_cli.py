@@ -3,10 +3,9 @@
 from pathlib import Path
 
 import pytest
-from typer.testing import CliRunner
-
-from emcSP.cli import app
 from emcSP import core
+from emcSP.cli import app
+from typer.testing import CliRunner
 
 
 @pytest.fixture
@@ -31,10 +30,11 @@ class TestAnalyzeCommand:
     def test_analyze_command_with_valid_args_calls_core_func(
         self, runner: CliRunner, sample_tsv: Path, tmp_path: Path, monkeypatch
     ):
-        called_kwargs = {}
+        called_args = {}
 
-        def mock_analyze(**kwargs):
-            called_kwargs.update(kwargs)
+        def mock_analyze(input_tsv, cfg, **kwargs):
+            called_args["cfg"] = cfg
+            called_args["input_tsv"] = input_tsv
 
         monkeypatch.setattr("emcSP.cli.analyze_from_tsv", mock_analyze)
 
@@ -51,8 +51,8 @@ class TestAnalyzeCommand:
         )
 
         assert result.exit_code == 0
-        assert "input_tsv" in called_kwargs
-        assert called_kwargs["sample_name"] == "test_sample"
+        assert called_args["input_tsv"] == sample_tsv
+        assert called_args["cfg"].sample_name == "test_sample"
 
     def test_analyze_command_validates_input_exists(self, runner: CliRunner):
         result = runner.invoke(
@@ -71,10 +71,10 @@ class TestAnalyzeCommand:
     def test_analyze_command_with_plot_option(
         self, runner: CliRunner, sample_tsv: Path, tmp_path: Path, monkeypatch
     ):
-        called_kwargs = {}
+        called_cfg = {}
 
-        def mock_analyze(**kwargs):
-            called_kwargs.update(kwargs)
+        def mock_analyze(input_tsv, cfg, **kwargs):
+            called_cfg["cfg"] = cfg
 
         monkeypatch.setattr("emcSP.cli.analyze_from_tsv", mock_analyze)
 
@@ -92,15 +92,15 @@ class TestAnalyzeCommand:
         )
 
         assert result.exit_code == 0
-        assert called_kwargs["plot"] is True
+        assert called_cfg["cfg"].plot is True
 
     def test_analyze_command_with_custom_context_type(
         self, runner: CliRunner, sample_tsv: Path, tmp_path: Path, monkeypatch
     ):
-        called_kwargs = {}
+        called_cfg = {}
 
-        def mock_analyze(**kwargs):
-            called_kwargs.update(kwargs)
+        def mock_analyze(input_tsv, cfg, **kwargs):
+            called_cfg["cfg"] = cfg
 
         monkeypatch.setattr("emcSP.cli.analyze_from_tsv", mock_analyze)
 
@@ -119,7 +119,55 @@ class TestAnalyzeCommand:
         )
 
         assert result.exit_code == 0
-        assert called_kwargs["context_type"] == "1536"
+        assert called_cfg["cfg"].context_type == "1536"
+
+    def test_analyze_command_with_format_html(
+        self, runner: CliRunner, sample_tsv: Path, tmp_path: Path, monkeypatch
+    ):
+        called_cfg = {}
+
+        def mock_analyze(input_tsv, cfg, **kwargs):
+            called_cfg["cfg"] = cfg
+
+        monkeypatch.setattr("emcSP.cli.analyze_from_tsv", mock_analyze)
+
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                str(sample_tsv),
+                "--sample-name",
+                "test_sample",
+                "--output",
+                str(tmp_path),
+                "--format",
+                "html",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert called_cfg["cfg"].output_format == "html"
+        assert called_cfg["cfg"].plot is True
+
+    def test_analyze_command_with_invalid_format(
+        self, runner: CliRunner, sample_tsv: Path, tmp_path: Path
+    ):
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                str(sample_tsv),
+                "--sample-name",
+                "test_sample",
+                "--output",
+                str(tmp_path),
+                "--format",
+                "invalid",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "Invalid output format" in result.output
 
 
 class TestInstallCommand:
