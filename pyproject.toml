@@ -9,6 +9,7 @@ dependencies = [
     "SigProfilerMatrixGenerator",
     "SigProfilerAssignment",
     "SigProfilerPlotting",
+    "jinja2",
 ]
 
 [dependency-groups]

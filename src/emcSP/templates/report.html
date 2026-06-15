@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutational Signatures - {{ sample_name }}</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --border-color: #e2e8f0;
+            --row-hover: #f1f5f9;
+        }
+
+        .info {
+            color: oklch(70.6% .105 222.225);
+        }
+        .success {
+            color: oklch(59.6% .145 163.225);
+        }
+        .warning {
+            color: oklch(66.6% .179 58.318);
+        }
+        .error {
+            color: oklch(64.5% .246 16.439);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.05);
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.025em;
+        }
+
+        .meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .meta span {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: var(--row-hover);
+        }
+
+        .stats-section {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-section h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .stat-card.success {
+            border-color: oklch(85% .1 163.225);
+            background-color: oklch(98% .02 163.225);
+        }
+
+        .stat-card.warning {
+            border-color: oklch(88% .1 58.318);
+            background-color: oklch(98% .02 58.318);
+        }
+
+        .stat-card.error {
+            border-color: oklch(85% .1 16.439);
+            background-color: oklch(98% .02 16.439);
+        }
+
+        .stat-card.info {
+            border-color: oklch(88% .08 222.225);
+            background-color: oklch(98% .02 222.225);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .stat-info {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+        }
+
+        .stat-info-icon {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.15s ease;
+            font-style: normal;
+        }
+
+        .stat-info:hover .stat-info-icon {
+            opacity: 1;
+        }
+
+        .stat-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 0.5rem);
+            right: -0.25rem;
+            width: 220px;
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .stat-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 0.6rem;
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+
+        .stat-info:hover .stat-tooltip {
+            display: block;
+        }
+
+        .tooltip-desc {
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+        }
+
+        .tooltip-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tooltip-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tooltip-dot.success { background-color: oklch(59.6% .145 163.225); }
+        .tooltip-dot.warning { background-color: oklch(66.6% .179 58.318); }
+        .tooltip-dot.error   { background-color: oklch(64.5% .246 16.439); }
+        .tooltip-dot.info    { background-color: oklch(70.6% .105 222.225); }
+
+
+
+        .plot-container {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .plot-container h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+            align-self: flex-start;
+        }
+
+        .plot-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .no-plot {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 2rem;
+            text-align: center;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .click-zoom input[type=checkbox] {
+            display: none
+        }
+
+        .click-zoom img {
+            transition: transform 0.25s ease;
+            cursor: zoom-in
+        }
+
+        .click-zoom input[type=checkbox]:checked~img {
+            transform: scale(2);
+            cursor: zoom-out
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mutational Signature Analysis</h1>
+            <p class="meta">Sample: <span>{{ sample_name }}</span></p>
+        </header>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Signature</th>
+                    <th>Relative Contribution</th>
+                    <th>Mutation Count</th>
+                    <th>Etiology</th>
+                    <th>COSMIC Information</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sig in signatures %}
+                <tr>
+                    <td><span class="stat-card info">{{ sig.name }}</span></td>
+                    <td>{{ "%.0f"|format(sig.contribution * 100) }}%</td>
+                    <td>{{ sig.count }}</td>
+                    <td>{{ sig.etiology }}</td>
+                    <td><a href="https://cancer.sanger.ac.uk/signatures/sbs/{{ sig.name.lower() }}/" target="_blank">Link to COSMIC: {{ sig.name.lower() }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if decomp_plot_b64 %}
+        <div class="plot-container click-zoom">
+            <h2>Signature Decomposition (Reconstruction) Plot</h2>
+            <label>
+                <input type="checkbox">
+                <img class="plot-img" src="data:image/png;base64,{{ decomp_plot_b64 }}" alt="Signature Decomposition Plot">
+            </label>
+        </div>
+        {% endif %}
+
+        {% if stats %}
+        <div class="stats-section">
+            <h2>Reconstruction Quality</h2>
+            <div class="stats-grid">
+                <div class="stat-card {{ stats.cosine_similarity_status }}">
+                    <span class="stat-label">Cosine Similarity</span>
+                    <span class="stat-value">{{ "%.3f"|format(stats.cosine_similarity|float) }}</span>
+                    <span class="stat-info">
+                        <i class="stat-info-icon">&#9432;</i>
+                        <span class="stat-tooltip">
+                            <span class="tooltip-desc">Similarity in shape between original and reconstructed profiles (0&ndash;1). Higher is better.</span>
+                            <span class="tooltip-row"><span class="tooltip-dot success"></span>&ge;0.90 Optimal Fit</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>&ge;0.80 Suboptimal</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;0.80 Poor Fit</span>
+                        </span>
+                    </span>
+                </div>
+                <div class="stat-card {{ stats.correlation_status }}">
+                    <span class="stat-label">Pearson Correlation</span>
+                    <span class="stat-value">{{ "%.3f"|format(stats.correlation|float) }}</span>
+                    <span class="stat-info">
+                        <i class="stat-info-icon">&#9432;</i>
+                        <span class="stat-tooltip">
+                            <span class="tooltip-desc">Linear association between original and reconstructed profiles (&minus;1&ndash;1).</span>
+                            <span class="tooltip-row"><span class="tooltip-dot success"></span>&ge;0.90 High</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>&ge;0.75 Moderate</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;0.75 Low</span>
+                        </span>
+                    </span>
+                </div>
+                <div class="stat-card {{ stats.kl_divergence_status }}">
+                    <span class="stat-label">KL Divergence</span>
+                    <span class="stat-value">{{ "%.3f"|format(stats.kl_divergence|float) }}</span>
+                    <span class="stat-info">
+                        <i class="stat-info-icon">&#9432;</i>
+                        <span class="stat-tooltip">
+                            <span class="tooltip-desc">Information loss when approximating the original profile (0&ndash;&infin;). Lower is better.</span>
+                            <span class="tooltip-row"><span class="tooltip-dot success"></span>&le;0.10 Minimal Loss</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>&le;0.20 Moderate Loss</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&gt;0.20 High Loss</span>
+                        </span>
+                    </span>
+                </div>
+                <div class="stat-card {{ stats.total_mutations_status }}">
+                    <span class="stat-label">Total Mutations</span>
+                    <span class="stat-value">{{ stats.total_mutations }}</span>
+                    <span class="stat-info">
+                        <i class="stat-info-icon">&#9432;</i>
+                        <span class="stat-tooltip">
+                            <span class="tooltip-desc">Total somatic mutations detected. Higher counts yield more reliable signature assignment.</span>
+                            <span class="tooltip-row"><span class="tooltip-dot info"></span>&ge;500 Very High Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot success"></span>200&ndash;499 High Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>50&ndash;199 Moderate Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;50 Low (Unreliable)</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
