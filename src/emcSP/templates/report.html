@@ -157,6 +157,22 @@
             background-color: oklch(98% .02 222.225);
         }
 
+        .stat-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background-color: oklch(92% .04 260);
+            color: oklch(30% .08 260);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .stat-badge:hover {
+            border-color: oklch(88% .08 222.225);
+            background-color: oklch(88% .08 260);
+        }
+
         .stat-label {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -319,36 +335,42 @@
                     <th>Relative Contribution</th>
                     <th>Mutation Count</th>
                     <th>Etiology</th>
-                    <th>COSMIC Information</th>
                 </tr>
             </thead>
             <tbody>
                 {% for sig in signatures %}
                 <tr>
-                    <td><span class="stat-card info">{{ sig.name }}</span></td>
+                    <td>
+                        <a href="https://cancer.sanger.ac.uk/signatures/sbs/{{ sig.name.lower() }}/" target="_blank">
+                            <span class="stat-badge">{{ sig.name }}</span>
+                        </a>
+                    </td>
                     <td>{{ "%.0f"|format(sig.contribution * 100) }}%</td>
                     <td>{{ sig.count }}</td>
                     <td>{{ sig.etiology }}</td>
-                    <td><a href="https://cancer.sanger.ac.uk/signatures/sbs/{{ sig.name.lower() }}/" target="_blank">Link to COSMIC: {{ sig.name.lower() }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        {% if decomp_plot_b64 %}
-        <div class="plot-container click-zoom">
-            <h2>Signature Decomposition (Reconstruction) Plot</h2>
-            <label>
-                <input type="checkbox">
-                <img class="plot-img" src="data:image/png;base64,{{ decomp_plot_b64 }}" alt="Signature Decomposition Plot">
-            </label>
-        </div>
-        {% endif %}
-
         {% if stats %}
         <div class="stats-section">
             <h2>Reconstruction Quality</h2>
             <div class="stats-grid">
+                <div class="stat-card {{ stats.total_mutations_status }}">
+                    <span class="stat-label">Total Mutations</span>
+                    <span class="stat-value">{{ stats.total_mutations }}</span>
+                    <span class="stat-info">
+                        <i class="stat-info-icon">&#9432;</i>
+                        <span class="stat-tooltip">
+                            <span class="tooltip-desc">Total somatic mutations detected. Higher counts yield more reliable signature assignment.</span>
+                            <span class="tooltip-row"><span class="tooltip-dot info"></span>&ge;500 Very High Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot success"></span>200&ndash;499 High Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>50&ndash;199 Moderate Power</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;50 Low (Unreliable)</span>
+                        </span>
+                    </span>
+                </div>
                 <div class="stat-card {{ stats.cosine_similarity_status }}">
                     <span class="stat-label">Cosine Similarity</span>
                     <span class="stat-value">{{ "%.3f"|format(stats.cosine_similarity|float) }}</span>
@@ -370,8 +392,8 @@
                         <span class="stat-tooltip">
                             <span class="tooltip-desc">Linear association between original and reconstructed profiles (&minus;1&ndash;1).</span>
                             <span class="tooltip-row"><span class="tooltip-dot success"></span>&ge;0.90 High</span>
-                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>&ge;0.75 Moderate</span>
-                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;0.75 Low</span>
+                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>&ge;0.80 Moderate</span>
+                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;0.80 Low</span>
                         </span>
                     </span>
                 </div>
@@ -388,21 +410,17 @@
                         </span>
                     </span>
                 </div>
-                <div class="stat-card {{ stats.total_mutations_status }}">
-                    <span class="stat-label">Total Mutations</span>
-                    <span class="stat-value">{{ stats.total_mutations }}</span>
-                    <span class="stat-info">
-                        <i class="stat-info-icon">&#9432;</i>
-                        <span class="stat-tooltip">
-                            <span class="tooltip-desc">Total somatic mutations detected. Higher counts yield more reliable signature assignment.</span>
-                            <span class="tooltip-row"><span class="tooltip-dot info"></span>&ge;500 Very High Power</span>
-                            <span class="tooltip-row"><span class="tooltip-dot success"></span>200&ndash;499 High Power</span>
-                            <span class="tooltip-row"><span class="tooltip-dot warning"></span>50&ndash;199 Moderate Power</span>
-                            <span class="tooltip-row"><span class="tooltip-dot error"></span>&lt;50 Low (Unreliable)</span>
-                        </span>
-                    </span>
-                </div>
             </div>
+        </div>
+        {% endif %}
+
+        {% if decomp_plot_b64 %}
+        <div class="plot-container click-zoom">
+            <h2>Signature Decomposition</h2>
+            <label>
+                <input type="checkbox">
+                <img class="plot-img" src="data:image/png;base64,{{ decomp_plot_b64 }}" alt="Signature Decomposition Plot">
+            </label>
         </div>
         {% endif %}
     </div>
