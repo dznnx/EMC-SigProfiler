@@ -73,7 +73,7 @@ emcsp analyze input.tsv --sample-name SampleA --output ./results --format both
 - `-c, --context-type TEXT`: Mutation context type (e.g., `96`, `192`, `1536`) [default: 96]
 - `--plot/--no-plot`: Generate plots for mutational matrices
 - `--make-plots/--no-make-plots`: Generate signature assignment plots
-- `--cosmic-version FLOAT`: COSMIC signatures version [default: 3.4]
+- `--cosmic-version FLOAT`: COSMIC signatures version [default: 3.5]
 - `--exome/--no-exome`: Enable exome-only analysis [default: no-exome]
 
 ---

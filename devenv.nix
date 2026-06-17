@@ -9,6 +9,7 @@
     fd
     ruff
     ty
+    poppler-utils
   ];
 
   languages.python = {

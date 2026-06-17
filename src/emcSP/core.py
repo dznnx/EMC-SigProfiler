@@ -92,11 +92,11 @@ def analyze_sample(cfg: SampleConfig, logger=None):
     )
 
     make_plots = cfg.make_plots
-    sample_reconstruction_plots = False
+    sample_reconstruction_plots = "none"
     if cfg.output_format in ("html", "both"):
         make_plots = True
         if shutil.which("pdftoppm"):
-            sample_reconstruction_plots = True
+            sample_reconstruction_plots = "both"
         else:
             log(
                 "Warning: pdftoppm (poppler-utils) not found. Sample reconstruction plots will not be generated."
@@ -273,18 +273,18 @@ def _annotate_stats(stats_dict):
     else:
         stats_dict["cosine_similarity_status"] = "error"
 
-    # correlation: ≥0.90 success, ≥0.75 warning, else error
-    if corr >= 0.90:
+    # correlation: ≥0.9 success, ≥0.8 warning, else error
+    if corr >= 0.9:
         stats_dict["correlation_status"] = "success"
-    elif corr >= 0.75:
+    elif corr >= 0.8:
         stats_dict["correlation_status"] = "warning"
     else:
         stats_dict["correlation_status"] = "error"
 
-    # kl_divergence: ≤0.10 success, ≤0.20 warning, else error
-    if kl <= 0.10:
+    # kl_divergence: ≤0.1 success, ≤0.2 warning, else error
+    if kl <= 0.1:
         stats_dict["kl_divergence_status"] = "success"
-    elif kl <= 0.20:
+    elif kl <= 0.2:
         stats_dict["kl_divergence_status"] = "warning"
     else:
         stats_dict["kl_divergence_status"] = "error"
