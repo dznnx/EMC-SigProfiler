@@ -2,7 +2,8 @@
 
 EMC-SigProfiler is a lightweight Python tool and library built on top of the **SigProfiler** suite (`SigProfilerMatrixGenerator`, `SigProfilerAssignment`, `SigProfilerPlotting`) to perform mutational signature analysis directly from simple genomic variant TSV files or VCFs. It formats output results into clean TSVs and highly customizable, fully offline-ready HTML reports.
 
----
+<img width="683" height="913" alt="image" src="https://github.com/user-attachments/assets/7d0ef86a-447f-42ef-93cf-9295727b0549" />
+
 
 ## Installation
 
@@ -121,7 +122,5 @@ Analysis generates the following files in the specified output directory:
 
 2. **HTML Report (`<sample-name>_signatures.html`)**:
    An offline-ready interactive report. Features:
-   - Zero internet dependencies (fonts and styles are local/system-based).
-   - Clean, modern layout using system typography.
    - Base64-encoded original mutational profile and signature decomposition (reconstruction) plots (requires `pdftoppm` in your environment) embedded directly in the file so the HTML is self-contained.
    - Clinical reconstruction metrics table including **Cosine Similarity**, **Pearson Correlation**, **KL Divergence**, and **Total Mutational Burden** comparison.
