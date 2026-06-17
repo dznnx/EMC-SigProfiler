@@ -124,3 +124,9 @@ Analysis generates the following files in the specified output directory:
    An offline-ready interactive report. Features:
    - Base64-encoded original mutational profile and signature decomposition (reconstruction) plots (requires `pdftoppm` in your environment) embedded directly in the file so the HTML is self-contained.
    - Clinical reconstruction metrics table including **Cosine Similarity**, **Pearson Correlation**, **KL Divergence**, and **Total Mutational Burden** comparison.
+
+The metrics in the HTML output use the following thresholds for 'success', 'warning' or 'error' indications:
+- cosine similarity: `success >=0.9`, `warning >=0.8`, `error <0.8`
+- correlation: `success >=0.9`, `warning >=0.8`, `error <0.8`
+- kl divergence: `success <=0.1`, `warning <=0.2`, `error >0.2`
+- total mutations: `low <50`, `moderate 50-200`, `high 200-500`, `very high >500`
