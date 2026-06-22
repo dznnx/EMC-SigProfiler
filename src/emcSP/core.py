@@ -262,7 +262,6 @@ def _annotate_stats(stats_dict):
 
     cs = float(stats_dict.get("cosine_similarity", 0))
     corr = float(stats_dict.get("correlation", 0))
-    kl = float(stats_dict.get("kl_divergence", 0))
     mut = int(float(stats_dict.get("total_mutations", 0)))
 
     # cosine_similarity: ≥0.9 success, ≥0.8 warning, else error
@@ -280,14 +279,6 @@ def _annotate_stats(stats_dict):
         stats_dict["correlation_status"] = "warning"
     else:
         stats_dict["correlation_status"] = "error"
-
-    # kl_divergence: ≤0.1 success, ≤0.2 warning, else error
-    if kl <= 0.1:
-        stats_dict["kl_divergence_status"] = "success"
-    elif kl <= 0.2:
-        stats_dict["kl_divergence_status"] = "warning"
-    else:
-        stats_dict["kl_divergence_status"] = "error"
 
     # total_mutations: <50 low, 50-200 moderate, 200-500 high, >500 very_high
     if mut < 50:
